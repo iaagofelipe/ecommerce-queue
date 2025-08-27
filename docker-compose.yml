@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  localstack:
+    image: localstack/localstack:3
+    environment:
+      - SERVICES=sqs
+      - DEFAULT_REGION=us-east-1
+    ports:
+      - "4566:4566"
+    volumes:
+      - "./init-localstack:/etc/localstack/init/ready.d"  # scripts que rodam quando o LS estiver pronto
