@@ -17,10 +17,15 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("""
               select p from Product p
               where (:q is null or
-                    lower(p.name) like lower(concat('%', :q, '%')) or
-                    lower(p.description) like lower(concat('%', :q, '%')) or
-                    lower(p.sku) like lower(concat('%', :q, '%')))
+                    lower(p.name) like lower(concat('%', COALESCE(:q, ''), '%')) or
+                    lower(p.description) like lower(concat('%', COALESCE(:q, ''), '%')) or
+                    lower(p.sku) like lower(concat('%', COALESCE(:q, ''), '%')))
                 and (:active is null or p.active = :active)
             """)
     Page<Product> search(@Param("q") String q, @Param("active") Boolean active, Pageable pageable);
+
+    Page<Product> findAllByActive(Boolean active, Pageable pageable);
+
+    @Query("select p from Product p where :active is null or p.active = :active")
+    Page<Product> findAllByActiveFilter(@Param("active") Boolean active, Pageable pageable);
 }

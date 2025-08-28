@@ -9,3 +9,34 @@ services:
       - "4566:4566"
     volumes:
       - "./init-localstack:/etc/localstack/init/ready.d"  # scripts que rodam quando o LS estiver pronto
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: storedb
+      POSTGRES_USER: store
+      POSTGRES_PASSWORD: store
+      TZ: "UTC"
+      PGTZ: "UTC"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U store -d storedb"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

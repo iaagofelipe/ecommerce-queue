@@ -24,7 +24,15 @@ public class ProductService {
 
     public Page<ProductResponse> search(String q, Boolean active, int page, int size) {
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return repo.search(emptyToNull(q), active, pageable).map(ProductMapper::toResponse);
+
+        final Page<Product> productPage;
+        if (q != null && !q.isBlank()) {
+            productPage = repo.search(q, active, pageable);
+        } else {
+            productPage = repo.findAllByActiveFilter(active, pageable);
+        }
+
+        return productPage.map(ProductMapper::toResponse);
     }
 
     public Optional<ProductResponse> getById(UUID id) {

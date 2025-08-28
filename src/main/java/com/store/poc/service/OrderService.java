@@ -10,6 +10,8 @@ import com.store.poc.repository.OutboxEventRepository;
 import com.store.poc.repository.PurchaseOrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.nio.channels.FileChannel;
@@ -83,20 +85,18 @@ public class OrderService {
                 ));
     }
 
-    @Transactional(Transactional.TxType.SUPPORTS)
-    public List<OrderResponse> getAllByCustomerId(UUID customerId) {
-        return repo.findAllByCustomerIdFetchItems(customerId)
-                .stream()
-                .map(po -> new OrderResponse(
-                        po.getId(),
-                        po.getCustomerId(),
-                        po.getStatus(),
-                        po.getTotalCents(),
-                        po.getCreatedAt(),
-                        po.getItems().stream()
-                                .map(i -> new OrderResponse.Item(i.getSku(), i.getQty(), i.getPriceCents()))
-                                .toList()
-                ))
-                .toList();
+    public Page<OrderResponse> getAllByCustomerId(UUID customerId, Pageable pageable) {
+        Page<PurchaseOrder> purchaseOrderPage = repo.findAllByCustomerId(customerId, pageable);
+
+        return purchaseOrderPage.map(po -> new OrderResponse(
+                po.getId(),
+                po.getCustomerId(),
+                po.getStatus(),
+                po.getTotalCents(),
+                po.getCreatedAt(),
+                po.getItems().stream()
+                        .map(i -> new OrderResponse.Item(i.getSku(), i.getQty(), i.getPriceCents()))
+                        .toList()
+        ));
     }
 }

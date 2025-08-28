@@ -7,6 +7,8 @@ import com.store.poc.repository.PurchaseOrderRepository;
 import com.store.poc.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +36,10 @@ public class OrderController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<OrderResponse>> getAllByCustomer(@PathVariable UUID customerId) {
-        return ResponseEntity.ok(orderService.getAllByCustomerId(customerId));
+    public ResponseEntity<Page<OrderResponse>> getAllByCustomer(
+            @PathVariable UUID customerId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(orderService.getAllByCustomerId(customerId, pageable));
     }
 }
